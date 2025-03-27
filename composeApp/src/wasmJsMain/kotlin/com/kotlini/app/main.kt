@@ -11,18 +11,19 @@ fun main() {
     // Function to detect if user agent is mobile
     fun isMobileDevice(): Boolean {
         val userAgent = window.navigator.userAgent.lowercase()
-        return userAgent.contains("android") || 
-               userAgent.contains("iphone") || 
-               userAgent.contains("ipad") || 
-               userAgent.contains("ipod") || 
-               userAgent.contains("blackberry") || 
-               userAgent.contains("windows phone")
+        return userAgent.contains("android") ||
+                userAgent.contains("iphone") ||
+                userAgent.contains("ipad") ||
+                userAgent.contains("ipod") ||
+                userAgent.contains("blackberry") ||
+                userAgent.contains("windows phone")
     }
 
     // Check if we're on a mobile device
     val isOnMobileDevice = isMobileDevice()
     // Style the body to center the mobile container
-    document.body!!.setAttribute("style", """
+    document.body!!.setAttribute(
+        "style", """
         margin: 0;
         padding: 0;
         width: 100vw;
@@ -31,7 +32,8 @@ fun main() {
         justify-content: center;
         align-items: center;
         background-color: #f0f0f0;
-    """.trimIndent())
+    """.trimIndent()
+    )
 
     // Create a container div with mobile dimensions
     val mobileContainer = document.createElement("div") as HTMLDivElement
@@ -39,12 +41,14 @@ fun main() {
     // Set mobile-like dimensions and styling
     val containerStyle = if (isOnMobileDevice) {
         """
-        width: 375px;
-        height: 95%;
+        width: 100%;
+        height: 100%;
         overflow: hidden;
         position: relative;
-        border-radius: 20px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        border-radius: 0;
+        box-shadow: none;
+        margin: 0;
+        padding: 0;
         """
     } else {
         """

@@ -2,6 +2,12 @@
 
 This app was developed with the help of JetBrains Junio in less than 3 hours. It is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop.
 
+## App Demo
+
+Check out the demo video of the app:
+
+[Bargardoon App Demo Video](doc/Bargardoon.mp4)
+
 ## Try it out
 
 The web version of this application is available at: https://bargardoon.pages.dev
