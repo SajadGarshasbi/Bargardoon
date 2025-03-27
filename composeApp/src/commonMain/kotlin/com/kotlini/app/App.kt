@@ -223,6 +223,8 @@ fun GameScreen(
 
     // Use a Box to position the confetti over everything else
     Box(modifier = Modifier.fillMaxSize()) {
+        // Show confetti when the game is won
+
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -379,6 +381,10 @@ fun GameScreen(
                     }
                 }
             }
+        }
+
+        if (isGameWon) {
+            EndlessConfetti()
         }
 
     }
