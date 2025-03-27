@@ -1,6 +1,6 @@
 # Bargardoon App
 
-This app was developed with the help of JetBrains Junio in less than 3 hours. It is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop, Server.
+This app was developed with the help of JetBrains Junio in less than 3 hours. It is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop.
 
 ## Try it out
 
