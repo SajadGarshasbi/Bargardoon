@@ -4,12 +4,7 @@ This app was developed with the help of JetBrains Junio in less than 3 hours. It
 
 ## App Demo
 
-Check out the demo video of the app:
-
-<video src="doc/Bargardoon.mp4" controls="controls" style="max-width: 730px;">
-</video>
-
-You can also [download the video](doc/Bargardoon.mp4) directly.
+[![Watch the demo](doc/thumbnail.png)](doc/Bargardoon.mp4)
 
 ## Try it out
 
