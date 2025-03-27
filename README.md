@@ -1,4 +1,4 @@
-# Kotlini App
+# Bargardoon App
 
 This app was developed with the help of JetBrains Junio in less than 3 hours. It is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop, Server.
 
@@ -36,8 +36,6 @@ The web version of this application is available at: https://bargardoon.pages.de
 
 * `/iosApp` contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform, 
   you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
-
-* `/server` is for the Ktor server application.
 
 * `/shared` is for the code that will be shared between all targets in the project.
   The most important subfolder is `commonMain`. If preferred, you can add code to the platform-specific folders here too.
