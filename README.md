@@ -4,7 +4,7 @@ This app was developed with the help of JetBrains Junio in less than 3 hours. It
 
 ## App Demo
 
-[![Watch the demo](doc/thumbnail.png)](doc/Bargardoon.mp4)
+![Demo](doc/demo.gif)
 
 ## Try it out
 
