@@ -6,7 +6,10 @@ This app was developed with the help of JetBrains Junio in less than 3 hours. It
 
 Check out the demo video of the app:
 
-[Bargardoon App Demo Video](doc/Bargardoon.mp4)
+<video src="doc/Bargardoon.mp4" controls="controls" style="max-width: 730px;">
+</video>
+
+You can also [download the video](doc/Bargardoon.mp4) directly.
 
 ## Try it out
 
