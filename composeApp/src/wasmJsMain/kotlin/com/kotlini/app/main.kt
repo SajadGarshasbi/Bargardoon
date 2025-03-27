@@ -40,7 +40,7 @@ fun main() {
     val containerStyle = if (isOnMobileDevice) {
         """
         width: 375px;
-        height: 667px;
+        height: 95%;
         overflow: hidden;
         position: relative;
         border-radius: 20px;
@@ -49,7 +49,7 @@ fun main() {
     } else {
         """
         width: 375px;
-        height: 667px;
+        height: 95%;
         overflow: hidden;
         position: relative;
         border-radius: 20px;
