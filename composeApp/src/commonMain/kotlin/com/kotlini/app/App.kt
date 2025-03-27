@@ -165,21 +165,45 @@ fun DifficultySelectionScreen(
 
         Spacer(modifier = Modifier.padding(vertical = 8.dp))
 
-        Button(
-            onClick = { openUrl("https://www.linkedin.com/in/sajad-garshasbi-a0b2b395/") },
-            modifier = Modifier.fillMaxWidth(0.7f)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+            Button(
+                onClick = { openUrl("https://www.linkedin.com/in/sajad-garshasbi-a0b2b395/") },
+                modifier = Modifier.padding(end = 8.dp)
             ) {
-                Text("Sajad Garshasbi")
-                Spacer(modifier = Modifier.padding(horizontal = 4.dp))
-                Icon(
-                    painter = painterResource(Res.drawable.ic_baseline_open_in_new_24),
-                    contentDescription = "Link",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text("Me")
+                    Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_baseline_open_in_new_24),
+                        contentDescription = "Link",
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+            }
+
+            Button(
+                onClick = { openUrl("https://github.com/SajadGarshasbi/Bargardoon") },
+                modifier = Modifier.padding(start = 8.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text("GitHub")
+                    Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_baseline_open_in_new_24),
+                        contentDescription = "Link",
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
             }
         }
 

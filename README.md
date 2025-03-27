@@ -1,4 +1,31 @@
-This is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop, Server.
+# Kotlini App
+
+This app was developed with the help of JetBrains Junio in less than 3 hours. It is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop, Server.
+
+## Try it out
+
+The web version of this application is available at: https://bargardoon.pages.dev
+
+## Running the Application
+
+### Android
+- Open the project in Android Studio
+- Select the "composeApp" configuration
+- Click on the run button or use `./gradlew :composeApp:assembleDebug`
+
+### iOS
+- Open the iosApp/iosApp.xcworkspace file in Xcode
+- Select a simulator or device
+- Run the project
+
+### Web
+- Run `./gradlew :composeApp:wasmJsBrowserDevelopmentRun` to start the development server
+- Open http://localhost:8080 in your browser
+
+### Desktop
+- Run `./gradlew :composeApp:desktopRun` to start the desktop application
+
+## Project Structure
 
 * `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
   It contains several subfolders:
