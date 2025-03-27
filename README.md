@@ -4,7 +4,7 @@ This app was developed with the help of JetBrains Junio in less than 3 hours. It
 
 ## App Demo
 
-![Demo](doc/demo2.gif)
+![Demo](doc/demo3.gif)
 
 ## Try it out
 
