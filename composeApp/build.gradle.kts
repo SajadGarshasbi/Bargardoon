@@ -18,7 +18,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -29,9 +29,9 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     jvm("desktop")
-    
+
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         moduleName = "composeApp"
@@ -50,11 +50,21 @@ kotlin {
             }
         }
         binaries.executable()
+
+        // Add memory configuration options to fix "Out of executable memory" error
+        applyBinaryen {
+            // Enable assertions for better error messages
+            binaryenArgs.add("-sASSERTIONS=1")
+            // Increase memory limits
+            binaryenArgs.add("-sMAXIMUM_MEMORY=4GB")
+            binaryenArgs.add("-sINITIAL_MEMORY=256MB")
+            binaryenArgs.add("-sALLOW_MEMORY_GROWTH=1")
+        }
     }
-    
+
     sourceSets {
         val desktopMain by getting
-        
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)

@@ -10,7 +10,7 @@ class WasmJsHapticFeedback : HapticFeedback {
     override fun vibrate(durationMillis: Long) {
         // Try to use the Web Vibration API if available
         try {
-//            js("if ('vibrate' in navigator) { navigator.vibrate(durationMillis); }")
+            // Web Vibration API is not available in Wasm yet
         } catch (e: Throwable) {
             // Ignore errors, this is just a best-effort attempt
         }

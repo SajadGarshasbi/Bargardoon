@@ -30,7 +30,7 @@ fun EndlessConfetti() {
     LaunchedEffect(Unit) {
         while (true) {
             // Add new particles
-            repeat(3) { // Add 3 particles at a time
+            repeat(1) { // Add 3 particles at a time
                 particles.add(
                     ConfettiParticle(
                         x = Random.nextFloat() * 1000,
@@ -46,11 +46,11 @@ fun EndlessConfetti() {
             }
 
             // Remove particles that are off-screen
-            if (particles.size > 300) { // Limit the number of particles
+            if (particles.size > 150) { // Limit the number of particles
                 particles.removeAt(0)
             }
 
-            delay(25) // Wait before adding more particles
+            delay(50) // Wait before adding more particles
         }
     }
 

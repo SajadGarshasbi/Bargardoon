@@ -1,6 +1,11 @@
 package com.kotlini.app
 
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -15,16 +20,20 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.*
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -33,36 +42,54 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.kotlini.app.theme.KotliniTheme
-import com.kotlini.app.viewmodel.CardState
-import com.kotlini.app.viewmodel.GameDifficulty
-import com.kotlini.app.viewmodel.MainViewModel
-import org.jetbrains.compose.ui.tooling.preview.Preview
-// Import the FlipCard component from the new file
-import com.kotlini.app.FlipCard
-// Import the openUrl function for opening the LinkedIn URL
+import com.kotlini.app.localization.LocalizationManager
 import com.kotlini.app.openUrl
+import com.kotlini.app.settings.Settings
+import com.kotlini.app.theme.BargardoonTheme
+import com.kotlini.app.viewmodel.DifficultySelectionViewModel
+import com.kotlini.app.viewmodel.GameDifficulty
+import com.kotlini.app.viewmodel.GameViewModel
+import com.kotlini.app.viewmodel.Language
+import com.kotlini.app.localization.StringKey
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlini.composeapp.generated.resources.Res
 import kotlini.composeapp.generated.resources.ic_baseline_open_in_new_24
 import org.jetbrains.compose.resources.painterResource
+import androidx.compose.ui.unit.LayoutDirection
 
 @Composable
 @Preview
 fun App() {
-    KotliniTheme {
-        Box(Modifier.fillMaxSize().padding(16.dp)) {
-            MyNavHost()
+    // Initialize settings to load saved preferences
+    Settings.initialize()
+
+    // Get the current language from LocalizationManager
+    val localizationManager = LocalizationManager.getInstance()
+    val currentLanguage by localizationManager.currentLanguage
+
+    // Set layout direction based on language
+    val layoutDirection = if (currentLanguage == Language.PERSIAN) {
+        LayoutDirection.Rtl
+    } else {
+        LayoutDirection.Ltr
+    }
+
+    // Provide the layout direction to the entire app
+    CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+        BargardoonTheme {
+            Box(Modifier.fillMaxSize().padding(16.dp)) {
+                MyNavHost()
+            }
         }
     }
 }
 
 @Composable
 fun MyNavHost() {
-    val nc = rememberNavController()
-    val mainViewModel: MainViewModel = viewModel { MainViewModel() }
+    val navController = rememberNavController()
 
     NavHost(
-        navController = nc,
+        navController = navController,
         startDestination = "difficulty",
     ) {
         composable("difficulty") {
@@ -72,29 +99,58 @@ fun MyNavHost() {
                     .background(MaterialTheme.colorScheme.background)
             ) {
                 DifficultySelectionScreen(
-                    mainViewModel = mainViewModel,
                     onDifficultySelected = { difficulty ->
-                        mainViewModel.setDifficulty(difficulty)
-                        nc.navigate("game")
+                        // Navigate to game screen with the selected difficulty
+                        when (difficulty) {
+                            GameDifficulty.EASY -> navController.navigate("game_easy")
+                            GameDifficulty.MEDIUM -> navController.navigate("game_medium")
+                            GameDifficulty.HARD -> navController.navigate("game_hard")
+                        }
                     }
                 )
             }
         }
 
-        composable("game") {
-            val cardStates by mainViewModel.cardStates.collectAsState()
-
+        composable("game_easy") {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
             ) {
                 GameScreen(
-                    mainViewModel = mainViewModel,
-                    cardStates = cardStates,
+                    difficulty = GameDifficulty.EASY,
                     onBackClicked = {
-                        mainViewModel.resetGameAndDifficulty()
-                        nc.popBackStack()
+                        navController.popBackStack()
+                    }
+                )
+            }
+        }
+
+        composable("game_medium") {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+            ) {
+                GameScreen(
+                    difficulty = GameDifficulty.MEDIUM,
+                    onBackClicked = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+        }
+
+        composable("game_hard") {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+            ) {
+                GameScreen(
+                    difficulty = GameDifficulty.HARD,
+                    onBackClicked = {
+                        navController.popBackStack()
                     }
                 )
             }
@@ -104,17 +160,86 @@ fun MyNavHost() {
 
 @Composable
 fun DifficultySelectionScreen(
-    mainViewModel: MainViewModel,
     onDifficultySelected: (GameDifficulty) -> Unit
 ) {
+    // Initialize the ViewModel inside the composable
+    val difficultyViewModel: DifficultySelectionViewModel = viewModel { DifficultySelectionViewModel() }
+
+    // Observe the current language
+    val currentLanguage by difficultyViewModel.currentLanguage
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Language selection button at the top
+        var showLanguageDialog by remember { mutableStateOf(false) }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                onClick = { showLanguageDialog = true },
+                modifier = Modifier.padding(end = 8.dp)
+            ) {
+                // Use a settings icon to represent language selection
+                Icon(
+                    imageVector = Icons.Filled.Settings,
+                    contentDescription = difficultyViewModel.getString(StringKey.SELECT_LANGUAGE),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+
+        // Language selection dialog
+        if (showLanguageDialog) {
+            AlertDialog(
+                onDismissRequest = { showLanguageDialog = false },
+                title = {
+                    Text(
+                        text = difficultyViewModel.getString(StringKey.SELECT_LANGUAGE),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                },
+                text = {
+                    Column {
+                        TextButton(
+                            onClick = {
+                                difficultyViewModel.setLanguage(Language.ENGLISH)
+                                showLanguageDialog = false
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = difficultyViewModel.getNativeLanguageName(Language.ENGLISH),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+
+                        TextButton(
+                            onClick = {
+                                difficultyViewModel.setLanguage(Language.PERSIAN)
+                                showLanguageDialog = false
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = difficultyViewModel.getNativeLanguageName(Language.PERSIAN),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
+                },
+                confirmButton = { }
+            )
+        }
+
         Text(
-            text = "Bargardoon!",
+            text = difficultyViewModel.getString(StringKey.APP_TITLE),
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
@@ -125,7 +250,7 @@ fun DifficultySelectionScreen(
         Spacer(modifier = Modifier.weight(1f))
 
         Text(
-            text = "Select Difficulty Level",
+            text = difficultyViewModel.getString(StringKey.SELECT_DIFFICULTY),
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Center,
@@ -136,27 +261,36 @@ fun DifficultySelectionScreen(
             onClick = { onDifficultySelected(GameDifficulty.EASY) },
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
         ) {
-            Text("Easy (8 cards)")
+            Text(
+                text = difficultyViewModel.getString(StringKey.EASY),
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
 
         Button(
             onClick = { onDifficultySelected(GameDifficulty.MEDIUM) },
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
         ) {
-            Text("Medium (16 cards)")
+            Text(
+                text = difficultyViewModel.getString(StringKey.MEDIUM),
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
 
         Button(
             onClick = { onDifficultySelected(GameDifficulty.HARD) },
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
         ) {
-            Text("Hard (24 cards)")
+            Text(
+                text = difficultyViewModel.getString(StringKey.HARD),
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
 
         Spacer(modifier = Modifier.padding(vertical = 12.dp))
 
         Text(
-            text = "Created by Sajad Garshasbi \n Powered by JetBrains Junie",
+            text = difficultyViewModel.getString(StringKey.CREATED_BY),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.secondary,
             textAlign = TextAlign.Center,
@@ -178,7 +312,10 @@ fun DifficultySelectionScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Text("Me")
+                    Text(
+                        text = difficultyViewModel.getString(StringKey.ME),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                     Spacer(modifier = Modifier.padding(horizontal = 4.dp))
                     Icon(
                         painter = painterResource(Res.drawable.ic_baseline_open_in_new_24),
@@ -196,7 +333,10 @@ fun DifficultySelectionScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Text("GitHub")
+                    Text(
+                        text = difficultyViewModel.getString(StringKey.GITHUB),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                     Spacer(modifier = Modifier.padding(horizontal = 4.dp))
                     Icon(
                         painter = painterResource(Res.drawable.ic_baseline_open_in_new_24),
@@ -213,31 +353,78 @@ fun DifficultySelectionScreen(
 
 @Composable
 fun GameScreen(
-    mainViewModel: MainViewModel,
-    cardStates: List<CardState>,
+    difficulty: GameDifficulty,
     onBackClicked: () -> Unit
 ) {
-    // Collect the game state at the top level
-    val isGameWon by mainViewModel.isGameWon.collectAsState()
-    val currentlyAnimatingCardId by mainViewModel.currentlyAnimatingCardId.collectAsState()
+    // Initialize the ViewModel inside the composable
+    val gameViewModel: GameViewModel = viewModel { GameViewModel() }
 
-    // Use a Box to position the confetti over everything else
+    // Initialize the game with the provided difficulty
+    LaunchedEffect(difficulty) {
+        gameViewModel.initializeGame(difficulty)
+    }
+
+    // Create a wrapped onBackClicked that resets the game state before navigating back
+    val wrappedOnBackClicked = {
+        gameViewModel.resetGameAndDifficulty()
+        onBackClicked()
+    }
+
+    // Collect the card states
+    val cardStates by gameViewModel.cardStates.collectAsState()
+    // Collect the game state at the top level
+    val isGameWon by gameViewModel.isGameWon.collectAsState()
+    val currentlyAnimatingCardId by gameViewModel.currentlyAnimatingCardId.collectAsState()
+    val hintCardIds by gameViewModel.hintCardIds.collectAsState()
+
+    // Use a Box to position the confetti and toast over everything else
     Box(modifier = Modifier.fillMaxSize()) {
         // Show confetti when the game is won
 
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Back button at the top (keeping this at the top for navigation purposes)
-            Button(onClick = onBackClicked, modifier = Modifier.padding(bottom = 8.dp)) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back"
-                )
+            // Top row with back button on left and hint button on right
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Back button on the left
+                Button(onClick = wrappedOnBackClicked) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = gameViewModel.getString(StringKey.BACK)
+                    )
+                }
+
+                // Hint button on the right - only show when not in preview mode
+                val isInPreviewMode by gameViewModel.isInPreviewMode.collectAsState()
+                val isHintUsed by gameViewModel.isHintUsed.collectAsState()
+                val gameTimeSeconds by gameViewModel.gameTimeSeconds.collectAsState()
+                val nextHintAvailableTime by gameViewModel.nextHintAvailableTime.collectAsState()
+
+                // Calculate if hint is available based on cooldown
+                val isHintAvailable = !isHintUsed && !isGameWon && gameTimeSeconds >= nextHintAvailableTime
+
+                if (!isInPreviewMode) {
+                    Button(
+                        onClick = { gameViewModel.showHint() },
+                        enabled = isHintAvailable
+                    ) {
+                        Text(
+                            text = gameViewModel.getString(StringKey.HINT),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
             }
 
             // Set the number of columns to 4 for all difficulty levels
             val columns = 4
+
+            // Collect the preview mode state
+            val isInPreviewMode by gameViewModel.isInPreviewMode.collectAsState()
 
             // Cards grid without weight to ensure it only takes the space it needs
             LazyVerticalGrid(
@@ -246,14 +433,67 @@ fun GameScreen(
             ) {
                 items(cardStates.size) { index ->
                     val cardState = cardStates[index]
-                    Box(modifier = Modifier.padding(4.dp)) {
+                    // Check if this card is a hint card
+                    val isHintCard = hintCardIds.contains(cardState.id)
+
+                    // Animation values for hint cards
+                    val infiniteTransition = rememberInfiniteTransition(label = "hintCardAnimation")
+
+                    // Scale animation for hint cards
+                    val scale by infiniteTransition.animateFloat(
+                        initialValue = 1f,
+                        targetValue = 1.2f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(500, easing = FastOutSlowInEasing),
+                            repeatMode = RepeatMode.Reverse
+                        ),
+                        label = "hintScale"
+                    )
+
+                    // Rotation animation for hint cards
+                    val rotation by infiniteTransition.animateFloat(
+                        initialValue = -5f,
+                        targetValue = 5f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(500, easing = FastOutSlowInEasing),
+                            repeatMode = RepeatMode.Reverse
+                        ),
+                        label = "hintRotation"
+                    )
+
+                    // Bounce animation for hint cards
+                    val offsetY by infiniteTransition.animateFloat(
+                        initialValue = 0f,
+                        targetValue = 5f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(300, easing = FastOutSlowInEasing),
+                            repeatMode = RepeatMode.Reverse
+                        ),
+                        label = "hintBounce"
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .graphicsLayer {
+                                // Apply animations only to hint cards
+                                if (isHintCard) {
+                                    scaleX = scale
+                                    scaleY = scale
+                                    rotationZ = rotation
+                                    translationY = offsetY
+                                }
+                            }
+                    ) {
                         FlipCard(
                             index = cardState.id,
                             flowerIndex = cardState.flowerIndex,
                             isFlipped = cardState.isFlipped,
                             isSelected = cardState.isSelected,
                             isAnimatingWin = cardState.id == currentlyAnimatingCardId,
-                            onFlip = { mainViewModel.toggleCardFlip(cardState.id) }
+                            isInPreviewMode = isInPreviewMode,
+                            isWrongGuess = cardState.isWrongGuess,
+                            onFlip = { gameViewModel.toggleCardFlip(cardState.id) }
                         )
                     }
                 }
@@ -267,9 +507,9 @@ fun GameScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Collect the preview mode and game state
-                val isInPreviewMode by mainViewModel.isInPreviewMode.collectAsState()
-                val countdownSeconds by mainViewModel.countdownSeconds.collectAsState()
-                val guessAttempts by mainViewModel.guessAttempts.collectAsState()
+                val isInPreviewMode by gameViewModel.isInPreviewMode.collectAsState()
+                val countdownSeconds by gameViewModel.countdownSeconds.collectAsState()
+                val guessAttempts by gameViewModel.guessAttempts.collectAsState()
 
                 // Display countdown timer when in preview mode
                 if (isInPreviewMode) {
@@ -298,7 +538,7 @@ fun GameScreen(
                     ) {
                         // Memorize message that can be multiline
                         Text(
-                            text = "Memorize the cards!",
+                            text = gameViewModel.getString(StringKey.MEMORIZE_CARDS),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.primary,
                             textAlign = TextAlign.Center,
@@ -315,7 +555,7 @@ fun GameScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Game starts in ",
+                                text = gameViewModel.getString(StringKey.GAME_STARTS_IN),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.primary,
                                 textAlign = TextAlign.Center
@@ -323,7 +563,7 @@ fun GameScreen(
 
                             // Animated countdown number
                             Text(
-                                text = "$countdownSeconds",
+                                text = gameViewModel.convertToPersianDigits(countdownSeconds),
                                 style = MaterialTheme.typography.headlineLarge,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 32.sp,
@@ -337,7 +577,7 @@ fun GameScreen(
                             )
 
                             Text(
-                                text = " seconds...",
+                                text = gameViewModel.getString(StringKey.SECONDS),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.primary,
                                 textAlign = TextAlign.Center
@@ -349,7 +589,7 @@ fun GameScreen(
                 // Display win message when all cards are matched
                 if (isGameWon) {
                     Text(
-                        text = "Congratulations! You won in $guessAttempts attempts!",
+                        text = gameViewModel.getFormattedStringWithInt(StringKey.CONGRATULATIONS, guessAttempts),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(vertical = 8.dp),
@@ -357,27 +597,52 @@ fun GameScreen(
                     )
                 }
 
-                // Row with attempts counter and New Game button - only show when not in preview mode
+                // Row with attempts counter and Hint button - only show when not in preview mode
                 if (!isInPreviewMode) {
+                    // Collect game state
+                    val isHintUsed by gameViewModel.isHintUsed.collectAsState()
+                    val hintCounter by gameViewModel.hintCounter.collectAsState()
+                    val gameTimeSeconds by gameViewModel.gameTimeSeconds.collectAsState()
+                    val nextHintAvailableTime by gameViewModel.nextHintAvailableTime.collectAsState()
+
+                    // Format the game time as minutes:seconds with Persian digits if needed
+                    val formattedTime = gameViewModel.formatTimeWithPersianDigits(gameTimeSeconds)
+
+                    // Calculate cooldown time remaining
+                    val cooldownRemaining = (nextHintAvailableTime - gameTimeSeconds).coerceAtLeast(0)
+
+                    // Game stats row
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Display guess attempts counter
-                        Text(
-                            text = "Attempts: $guessAttempts",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary,
+                        // Game stats column
+                        Column(
                             modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
-                        )
+                        ) {
+                            // Display game timer
+                            Text(
+                                text = gameViewModel.getFormattedStringWithString(StringKey.TIME, formattedTime),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
 
-                        Spacer(modifier = Modifier.weight(1f))
+                            // Display guess attempts counter
+                            Text(
+                                text = gameViewModel.getFormattedStringWithInt(StringKey.ATTEMPTS, guessAttempts),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
 
-                        Button(onClick = {
-                            mainViewModel.resetGame()
-                        }) {
-                            Text("New Game")
+                            // Display hint counter and cooldown
+                            Text(
+                                text = gameViewModel.getFormattedStringWithInt(StringKey.HINTS, hintCounter) + 
+                                       if (cooldownRemaining > 0) gameViewModel.getFormattedStringWithInt(StringKey.NEXT, cooldownRemaining) else "",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
                         }
+
                     }
                 }
             }

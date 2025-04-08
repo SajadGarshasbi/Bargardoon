@@ -1,6 +1,11 @@
 package com.kotlini.app
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -36,6 +41,8 @@ fun FlipCard(
     isFlipped: Boolean,
     isSelected: Boolean = false,
     isAnimatingWin: Boolean = false,
+    isInPreviewMode: Boolean = false,
+    isWrongGuess: Boolean = false,
     onFlip: () -> Unit
 ) {
     val cardRotation by animateFloatAsState(
@@ -50,6 +57,53 @@ fun FlipCard(
         animationSpec = tween(durationMillis = 200),
         label = "scale"
     )
+
+    // Animation for vibrating cards during preview mode
+    val infiniteTransition = rememberInfiniteTransition(label = "previewVibration")
+    val vibrationOffset by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(150, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "vibration"
+    )
+
+    // Scale in/out animation during preview mode
+    val scaleInOut by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.05f,  // Scale up to 105% of original size
+        animationSpec = infiniteRepeatable(
+            animation = tween(200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "scaleInOut"
+    )
+
+    // Calculate the actual vibration rotation (only apply when in preview mode)
+    val actualVibrationRotation = if (isInPreviewMode && isFlipped) (vibrationOffset - 0.5f) * 5f else 0f
+
+    // Calculate the actual scale (only apply when in preview mode)
+    val actualScale = if (isInPreviewMode && isFlipped) scaleInOut else 1f
+
+    // Animation for wrong guess - more intense rotation and scale
+    val wrongGuessRotation by animateFloatAsState(
+        targetValue = if (isWrongGuess) 1f else 0f,
+        animationSpec = tween(durationMillis = 1000),
+        label = "wrongGuessAnimation"
+    )
+
+    // Calculate the actual wrong guess rotation and scale effects
+    val wrongGuessRotationEffect = if (isWrongGuess) {
+        // Create a vibrating rotation effect that's more intense than the preview mode
+        (kotlin.math.sin(wrongGuessRotation * kotlin.math.PI.toFloat() * 10) * 10)
+    } else 0f
+
+    val wrongGuessScaleEffect = if (isWrongGuess) {
+        // Create a pulsing scale effect between 0.95 and 1.05
+        0.95f + (kotlin.math.sin(wrongGuessRotation * kotlin.math.PI.toFloat() * 10) * 0.1f)
+    } else 1f
 
     // Vibrate when animations occur (only on mobile devices)
     LaunchedEffect(isFlipped, isAnimatingWin) {
@@ -74,8 +128,11 @@ fun FlipCard(
             .graphicsLayer {
                 rotationY = cardRotation
                 cameraDistance = 12 * density
-                scaleX = scale
-                scaleY = scale
+                // Apply win animation scale, preview mode scale in/out, and wrong guess scale effect
+                scaleX = scale * actualScale * wrongGuessScaleEffect
+                scaleY = scale * actualScale * wrongGuessScaleEffect
+                // Apply rotational vibration animation during preview mode or wrong guess
+                rotationZ = actualVibrationRotation + wrongGuessRotationEffect
             }
             .then(
                 if (isSelected) {
@@ -105,8 +162,10 @@ fun FrontCard(title: String) {
         modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(16.dp))
     ) {
         Box(contentAlignment = Alignment.Center) {
+            // Convert digits to Persian if the language is Persian
+            val localizedTitle = com.kotlini.app.localization.LocalizationManager.getInstance().convertToPersianDigits(title)
             Text(
-                title,
+                localizedTitle,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onPrimary

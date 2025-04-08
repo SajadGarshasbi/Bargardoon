@@ -2,12 +2,15 @@ package com.kotlini.app
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
+import com.kotlini.app.settings.WebSettings
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.HTMLDivElement
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
+    // Initialize web-specific settings
+    WebSettings.initialize()
     // Function to detect if user agent is mobile
     fun isMobileDevice(): Boolean {
         val userAgent = window.navigator.userAgent.lowercase()
