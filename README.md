@@ -4,7 +4,7 @@ This app was developed with the help of JetBrains Junie. It is a Kotlin Multipla
 
 ## App Demo
 
-![Demo](doc/demo3.gif)
+![Demo](doc/demo4.gif)
 
 ## Try it out
 
