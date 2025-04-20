@@ -68,7 +68,7 @@ fun App() {
     val currentLanguage by localizationManager.currentLanguage
 
     // Set layout direction based on language
-    val layoutDirection = if (currentLanguage == Language.PERSIAN) {
+    val layoutDirection = if (currentLanguage == Language.PERSIAN || currentLanguage == Language.ARABIC) {
         LayoutDirection.Rtl
     } else {
         LayoutDirection.Ltr
@@ -229,6 +229,32 @@ fun DifficultySelectionScreen(
                         ) {
                             Text(
                                 text = difficultyViewModel.getNativeLanguageName(Language.PERSIAN),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+
+                        TextButton(
+                            onClick = {
+                                difficultyViewModel.setLanguage(Language.SPANISH)
+                                showLanguageDialog = false
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = difficultyViewModel.getNativeLanguageName(Language.SPANISH),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+
+                        TextButton(
+                            onClick = {
+                                difficultyViewModel.setLanguage(Language.ARABIC)
+                                showLanguageDialog = false
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = difficultyViewModel.getNativeLanguageName(Language.ARABIC),
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         }
@@ -563,7 +589,7 @@ fun GameScreen(
 
                             // Animated countdown number
                             Text(
-                                text = gameViewModel.convertToPersianDigits(countdownSeconds),
+                                text = gameViewModel.convertToLocalizedDigits(countdownSeconds),
                                 style = MaterialTheme.typography.headlineLarge,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 32.sp,
@@ -605,8 +631,8 @@ fun GameScreen(
                     val gameTimeSeconds by gameViewModel.gameTimeSeconds.collectAsState()
                     val nextHintAvailableTime by gameViewModel.nextHintAvailableTime.collectAsState()
 
-                    // Format the game time as minutes:seconds with Persian digits if needed
-                    val formattedTime = gameViewModel.formatTimeWithPersianDigits(gameTimeSeconds)
+                    // Format the game time as minutes:seconds with localized digits if needed
+                    val formattedTime = gameViewModel.formatTimeWithLocalizedDigits(gameTimeSeconds)
 
                     // Calculate cooldown time remaining
                     val cooldownRemaining = (nextHintAvailableTime - gameTimeSeconds).coerceAtLeast(0)

@@ -15,7 +15,9 @@ enum class GameDifficulty(val pairCount: Int) {
  */
 enum class Language {
     ENGLISH,
-    PERSIAN
+    PERSIAN,
+    SPANISH,
+    ARABIC
 }
 
 /**

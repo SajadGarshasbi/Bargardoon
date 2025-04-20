@@ -162,8 +162,8 @@ fun FrontCard(title: String) {
         modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(16.dp))
     ) {
         Box(contentAlignment = Alignment.Center) {
-            // Convert digits to Persian if the language is Persian
-            val localizedTitle = com.kotlini.app.localization.LocalizationManager.getInstance().convertToPersianDigits(title)
+            // Convert digits to localized format based on the current language
+            val localizedTitle = com.kotlini.app.localization.LocalizationManager.getInstance().convertToLocalizedDigits(title)
             Text(
                 localizedTitle,
                 style = MaterialTheme.typography.titleLarge,

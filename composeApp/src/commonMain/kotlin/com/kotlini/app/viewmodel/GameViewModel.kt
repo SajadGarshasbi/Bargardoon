@@ -49,7 +49,7 @@ class GameViewModel : ViewModel() {
      */
     fun getFormattedStringWithInt(key: StringKey, value: Int): String {
         val template = localizationManager.getString(key)
-        val valueStr = localizationManager.convertToPersianDigits(value.toString())
+        val valueStr = localizationManager.convertToLocalizedDigits(value.toString())
         return template.replace("%d", valueStr)
     }
 
@@ -61,29 +61,29 @@ class GameViewModel : ViewModel() {
      */
     fun getFormattedStringWithString(key: StringKey, value: String): String {
         val template = localizationManager.getString(key)
-        val valueStr = localizationManager.convertToPersianDigits(value)
+        val valueStr = localizationManager.convertToLocalizedDigits(value)
         return template.replace("%s", valueStr)
     }
 
     /**
-     * Converts a number to a string with Persian digits if the current language is Persian.
+     * Converts a number to a string with localized digits based on the current language.
      * @param number The number to convert.
-     * @return The number as a string with Persian digits if needed.
+     * @return The number as a string with localized digits if needed.
      */
-    fun convertToPersianDigits(number: Int): String {
-        return localizationManager.convertToPersianDigits(number.toString())
+    fun convertToLocalizedDigits(number: Int): String {
+        return localizationManager.convertToLocalizedDigits(number.toString())
     }
 
     /**
-     * Formats time as minutes:seconds with Persian digits if the current language is Persian.
+     * Formats time as minutes:seconds with localized digits based on the current language.
      * @param totalSeconds The total time in seconds.
-     * @return The formatted time string with Persian digits if needed.
+     * @return The formatted time string with localized digits if needed.
      */
-    fun formatTimeWithPersianDigits(totalSeconds: Int): String {
+    fun formatTimeWithLocalizedDigits(totalSeconds: Int): String {
         val minutes = totalSeconds / 60
         val seconds = totalSeconds % 60
         val formattedTime = "${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}"
-        return localizationManager.convertToPersianDigits(formattedTime)
+        return localizationManager.convertToLocalizedDigits(formattedTime)
     }
 
     // State for the list of cards
