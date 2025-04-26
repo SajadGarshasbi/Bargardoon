@@ -1,55 +1,17 @@
 # Bargardoon App
 
-This app was developed with the help of JetBrains Junie. It is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop.
+**IMPORTANT NOTE:** This project structure is not ideal and is only intended as a showcase to demonstrate the power of JetBrains Junie! The code organization and architecture should not be used as a reference for production applications. Most of the code in this project was written just by prompts to Junie.
+
+This is a Kotlin and Compose Multiplatform project with support for multiple platforms:
+- Android
+- iOS
+- Web
+- Desktop
+
+## Web Demo
+
+Check out the live web version: [https://bargardoon.pages.dev](https://bargardoon.pages.dev)
 
 ## App Demo
 
 ![Demo](doc/demo4.gif)
-
-## Try it out
-
-The web version of this application is available at: https://bargardoon.pages.dev
-
-## Running the Application
-
-### Android
-- Open the project in Android Studio
-- Select the "composeApp" configuration
-- Click on the run button or use `./gradlew :composeApp:assembleDebug`
-
-### iOS
-- Open the iosApp/iosApp.xcworkspace file in Xcode
-- Select a simulator or device
-- Run the project
-
-### Web
-- Run `./gradlew :composeApp:wasmJsBrowserDevelopmentRun` to start the development server
-- Open http://localhost:8080 in your browser
-
-### Desktop
-- Run `./gradlew :composeApp:desktopRun` to start the desktop application
-
-## Project Structure
-
-* `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - `commonMain` is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    `iosMain` would be the right folder for such calls.
-
-* `/iosApp` contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform, 
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
-
-* `/shared` is for the code that will be shared between all targets in the project.
-  The most important subfolder is `commonMain`. If preferred, you can add code to the platform-specific folders here too.
-
-
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html),
-[Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform/#compose-multiplatform),
-[Kotlin/Wasm](https://kotl.in/wasm/)…
-
-We would appreciate your feedback on Compose/Web and Kotlin/Wasm in the public Slack channel [#compose-web](https://slack-chats.kotlinlang.org/c/compose-web).
-If you face any issues, please report them on [GitHub](https://github.com/JetBrains/compose-multiplatform/issues).
-
-You can open the web application by running the `:composeApp:wasmJsBrowserDevelopmentRun` Gradle task.
